@@ -20,8 +20,6 @@ To use: python3 TRACCER.py --mastertree=pathtospeciestree --gtrees=pathtomultipl
  
 Species names must match those on the trees.
 
-Individual trees can be missing some.
-
 Outgroup species define one side of the species tree.
 
 For more details: python3 TRACCER.py -help
