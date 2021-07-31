@@ -11,8 +11,8 @@ An in-depth description of these approaches are at
 https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab226/6330627 [TODO update link after advace-access is updated to full]
 
 Requirements:
-1) Master tree. A single newick tree on the top line.
-2) Fasta-like file of multiple trees, all fixed to the species phylogeny, but individual lineages can be missing.
+1) Species tree. A single newick tree on the top line.
+2) Fasta-like file of multiple newick trees, all fixed to the species phylogeny, but individual lineages can be missing.
 3) List of species that have a trait of interest
 4) Python 3, with numpy (https://numpy.org/install/) and ete3 (http://etetoolkit.org/download/) installed.
 
@@ -22,4 +22,4 @@ Species names must match those on the trees.
 
 Outgroup species define one side of the species tree.
 
-For more details: python3 TRACCER.py -help
+For more details: python3 TRACCER.py --help
