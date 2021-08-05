@@ -1,5 +1,5 @@
 # TRACCER
-TRACCER detects convergent rate shifts in conjunction with a trait of interest while correcting for phylogentic distance and common tree-making artifacts.
+TRACCER detects convergent rate shifts in conjunction with a trait of interest while correcting for phylogentic distance, sampling biases, and common tree-making artifacts.
 
 It is generally used on gene or protein trees, but it equivalently works on arbitrary non-coding regions.
 
