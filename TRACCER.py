@@ -1,4 +1,4 @@
-#TRACCER detects convergent rate shifts in conjunction with a trait of interest while correcting for phylogentic distance and common tree-making artifacts.
+#TRACCER detects convergent rate shifts in conjunction with a trait of interest while correcting for phylogentic distance, sampling biases, and common tree-making artifacts.
 #It is generally used on gene or protein trees, but it equivalently works on arbitrary non-coding regions.
 #The significance of each tree is based on the distribution of scores from randomly permuting branches across all trees.
 #Specifically, branches defined by the extant lineages that share it as an ancestor are shuffled into a synthetic tree. Millions of these are scored, and actual tree scores are compared to this distribution to determine significance.
