@@ -23,3 +23,5 @@ Species names must match those on the trees.
 Outgroup species define one side of the species tree.
 
 For more details: python3 TRACCER.py --help
+
+Reach out to stephen_treaster (at) hms (dot) harvard (dot) edu for help. Still optimizing the user experience and would love feedback!
