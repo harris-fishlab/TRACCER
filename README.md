@@ -8,7 +8,7 @@ Specifically, branches defined by the extant lineages that share it as an ancest
 Millions of these are scored and actual tree scores are compared to this distribution to determine significance.
 
 An in-depth description of these approaches are at
-https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab226/6330627 [TODO update link after advace-access is updated to full]
+https://doi.org/10.1093/molbev/msab226
 
 Requirements:
 1) Species tree. A single newick tree on the top line.
