@@ -2,10 +2,10 @@
 #It is generally used on gene or protein trees, but it equivalently works on arbitrary non-coding regions.
 #The significance of each tree is based on the distribution of scores from randomly permuting branches across all trees.
 #Specifically, branches defined by the extant lineages that share it as an ancestor are shuffled into a synthetic tree. Millions of these are scored, and actual tree scores are compared to this distribution to determine significance.
-#An in depth description of these approaches are at https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab226/6330627?login=true [TODO update link after advace-access is updated to full]
+#An in depth description of these approaches are at https://doi.org/10.1093/molbev/msab226
 #Requirements:
 #1. Species tree. A single newick tree on the top line
-#2. Fasta-like file of multiple newick trees, all fixed to the species phylogeny, but individual lineages can be missing.
+#2. File of multiple newick trees, all fixed to the species phylogeny, but individual lineages can be missing.
 #3. List of species bearing a trait of interest.
 #4. Python 3, with numpy (https://numpy.org/install/) and ete3 (http://etetoolkit.org/download/)
 #Soon to require pandas (https://pandas.pydata.org/)
@@ -30,7 +30,7 @@ parser = OptionParser()
 parser.add_option("--mastertree", dest="mastertree_path", action='store',type='string',
         help="File with the species phylogeny in newick format on the first line. --mastertree=pathtomastertree")
 parser.add_option("--gtrees", dest="genetrees_path", action='store',type='string',
-        help="path to genetrees in fasta-like-newick format. --gtrees=pathtogtrees")
+        help="path to genetrees --gtrees=pathtogtrees")
 parser.add_option("--outgroup", dest="outgroup", action='store',type='string',default=False,
         help="comma separated list representing one side of the species tree, eg. --outgroup=speciesX,speciesY,speciesZ")
 parser.add_option("--hastrait", dest="groupA", action='store',type='string',
@@ -66,7 +66,10 @@ def help_text(*args):
     print("\nTRACCER correlates relative evolutionary rates with a phenotype of interest and corrects for phylogenetic relatedness.\n")
     print("To use:\npython3 TRACCER.py --gtrees=allgenetrees_path --mastertree=mastertree_path --hastrait=speciesA,speciesC,speciesF --outname=myresultsname --outgroup=SpeciesG,SpeciesH\n")
     print("Use --help for more details on the flags available.\n")
-    print("Genetrees must be in a fasta-like-newick format, like so:\n>genename1\n(newickstring);\n>genename2\n(newickstring);\n")
+    print("""Genetrees must be name\tnewick or fasta-like-newick format, like so:
+            \ngenename1\t(newickstring);\ngenename2\t(newickstring);\n
+            or\n
+            \n>genename1\n(newickstring);\n>genename2\n(newickstring);\n""")
     print("The mastertree file is a single newick tree on the top line with all lineages included.")
     print("Outgroup species are required to parse ancestry when some lineages are missing on individual gene trees. List all the species, comma separated, no spaces, from one side of the root.")
     print("TRACCER requires the numpy and ete3 libraries installed and accessible to Python3.\n")
@@ -118,9 +121,12 @@ def initialize_species_groups():
             try:
                 mastertree = Tree(row, format=1)
             except:
-                help_text("MASTER SPECIES TREE MISFORMATTED. Confirm it fulfills newick requirements.")
+                help_text("MASTER SPECIES TREE MISFORMATTED. Confirm it fulfills newick requirements, has no tabs, and does not start with '>'.")
             break
-    allspecies = frozenset([x.name for x in mastertree.get_leaves()])
+    try:
+        allspecies = frozenset([x.name for x in mastertree.get_leaves()])
+    except:
+        help_text("MASTER SPECIES TREE MISFORMATTED. Confirm it fulfills newick requirements.")
     groupA = set(options.groupA.split(','))
     if options.random:
         halfA = set(random.sample(allspecies,int(len(groupA)/2)))
@@ -326,28 +332,56 @@ def calcscores(bundle):
     bundle['result']['score'] = score
     return bundle
 
-def processtrees(genetrees_path):
-    names2trees = []
+def fasta_like_handler(path): #Parse file of multiple newick trees into names and trees.
     usednames = set()
-    skippablesymbols = {'#','\n',"''"}
-    with open(genetrees_path) as infile:
-        #Parse fasta-like newick trees into names and trees.
+    skippablesymbols = {'#','\n',"''", '!'}
+    names2trees = []
+    with open(path) as infile:
         for row in infile:
-            if row[0] == '>':
+            if row[0] in skippablesymbols: continue
+            if row[0] == '>': #fasta-like
                 name = row[1:].strip()
-                if name in usednames:
-                    print("%s name occurs at least twice" %name)
-                    raise Exception("Naming overlap. Unique-ify your tree names.")
             elif row[0] == '(':
                 if name in usednames:
                     print("%s has multiple trees" %name)
-                    raise Exception("Fasta-like misformmating. One name to multiple trees.")
+                    raise Exception("Naming overlap. All names must be unique.")
                 names2trees.append((name,row.strip()))
                 usednames.add(name)
-            elif row[0] in skippablesymbols: continue
             else:
                 print(row)
-                help_text("Skipping this row. Fasta-like format may have errors.")
+                help_text("!!! Fasta-like format may be misformatted !!!")
+    return names2trees
+
+def tabbed_file_handler(path):
+    usednames = set()
+    skippablesymbols = {'#','\n',"''", '!'}
+    names2trees = []
+    with open(path) as infile:
+        for row in infile:
+            if row[0] in skippablesymbols: continue
+            name,tree = row.strip().split('\t')
+            if name in usednames:
+                print("%s name occurs at least twice" %name)
+                raise Exception("Naming overlap. All names must be unique.")
+            names2trees.append((name,tree))
+    return names2trees
+
+def processtrees(genetrees_path):
+    skippablesymbols = {'#','\n',"''", '!'}
+    with open(genetrees_path) as infile:
+        #Parse file of multiple newick trees into names and trees.
+        for row in infile:
+            if row[0] in skippablesymbols: continue
+            if '\t' in row:
+                filetype = 'tabbed'
+                break
+            elif row[0] == '>':
+                filetype = 'fastalike'
+                break
+            else: help_text("\n\n!!! Multi-tree file misformated !!!")
+    if filetype   == 'tabbed':    names2trees = tabbed_file_handler(genetrees_path)
+    elif filetype == 'fastalike': names2trees = fasta_like_handler(genetrees_path)
+    else: raise Exception("Multi-tree file misformated. Must be name[tab]newick or >name[newline]newick")
     with Pool(processes=options.cpus) as p:
         print("Processing %d input trees... (~10 minutes for 30k trees with 12 cpus)" %len(names2trees))
         processedtrees = list(p.imap_unordered(prep_tree_data,names2trees))
@@ -358,7 +392,7 @@ def processtrees(genetrees_path):
         else:                        badbundles.append(bundle)
     goodbundles,allmedians = calculate_RERs(goodbundles)
     if len(goodbundles) < 1000:
-        print("Less than 1000 gene trees passed quality checks. There is simply not enough variation in this dataset to identify meaningful convergence or generate a meaningful score-space. TRACCER will try anyway, but it is only validated on proteome wide datasets (20,000+ trees).")
+        print("\n!!! Less than 1000 gene trees passed quality checks. There is likely insufficient complexity here to establish a background branch distribution to draw from and generate a meaningful score-space. TRACCER will try anyway, but it is only validated on proteome wide datasets (20,000+ trees).\n")
 
     print("scoring...")
     goodbundles = list(map(calcscores,goodbundles))
