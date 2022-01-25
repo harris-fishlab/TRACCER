@@ -116,7 +116,7 @@ def initialize_species_groups():
             if row.startswith('>'): continue
             if '\t' in row: row = row.split('\t')[-1]
             try:
-                mastertree = Tree(row)
+                mastertree = Tree(row, format=1)
             except:
                 help_text("MASTER SPECIES TREE MISFORMATTED. Confirm it fulfills newick requirements.")
             break
@@ -286,7 +286,7 @@ def roottree(tree,gspecies):
 def prep_tree_data(name_and_gtree):
     name,gtree = name_and_gtree #annoying, but multiple arguments don't map well through pool
     try: #in case tree error, misformated, duplicated species
-        gtree = Tree(gtree)
+        gtree = Tree(gtree, format=1)
         gspecies = set([x.name for x in gtree.get_leaves()])
         gtree.prune(list(allspecies&gspecies)) #remove extra species not in master tree
         gspecies = allspecies&gspecies
