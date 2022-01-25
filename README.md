@@ -12,7 +12,7 @@ https://doi.org/10.1093/molbev/msab226
 
 Requirements:
 1) Species tree. A single newick tree on the top line.
-2) Fasta-like file of multiple newick trees, all fixed to the species phylogeny, but individual lineages can be missing.
+2) File of multiple newick trees (thousands, genome wide) all fixed to the species phylogeny, but individual lineages can be missing from individual trees.
 3) List of species that have a trait of interest
 4) Python 3, with numpy (https://numpy.org/install/) and ete3 (http://etetoolkit.org/download/) installed.
 
