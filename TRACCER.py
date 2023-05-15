@@ -378,7 +378,7 @@ def processtrees(genetrees_path):
             elif row[0] == '>':
                 filetype = 'fastalike'
                 break
-            else: help_text("\n\n!!! Multi-tree file misformated !!!")
+            else: help_text("\n\n Multi-tree file misformated, must be name[tab]newick or >name[newline]newick")
     if filetype   == 'tabbed':    names2trees = tabbed_file_handler(genetrees_path)
     elif filetype == 'fastalike': names2trees = fasta_like_handler(genetrees_path)
     else: raise Exception("Multi-tree file misformated. Must be name[tab]newick or >name[newline]newick")
