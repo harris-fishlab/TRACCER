@@ -688,6 +688,7 @@ def saveresults(finalresults):
         for i,result in enumerate(finalresults):
             if options.sensitivity: FDR = 25000*result[2] #p*rough proteome size
             else: FDR = len(finalresults)*result[5]/(i+1) #number by chance / number actual
+            if FDR > 1: FDR = 1
             result.append(FDR)
             out.write('\t'.join([str(x) for x in result]))
             out.write('\n')
